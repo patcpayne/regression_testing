@@ -65,7 +65,7 @@ def main():
     covered, no_cover, ignore, ignore_master, all_params = build_master(
         covered_temp, no_cover_temp, covered, no_cover,
         ignore, ignore_master, all_params)
-    
+
     covered_Frac, no_cover_Frac = get_frac(covered,no_cover)
     output_coverage("Coverage.out", covered, no_cover, covered_Frac,
                     no_cover_Frac)
@@ -128,9 +128,9 @@ def list_parameters(data_file, start_line, All):
             else:
                if r'[*]' in line:
                    # Singles out the covered parameters and writes their names
-                   parameter = re.split(r' +', line)
+                   parameter = re.split(r' +', line.replace("[*]"," "))
                    if parameter:
-                       temp = parameter[2]
+                       temp = parameter[1]
                        covered.append(temp)
                else:
                    # Takes the rest of the parameters (not covered) and writes their names
@@ -250,7 +250,8 @@ def get_files():
     data = os.getcwd()
     
     # Determines tests in the most recent test
-    dirs = os.listdir(data)   
+    dirs = []
+    dirs = [ d for d in os.listdir(data) if os.path.isdir(d) ]
 
     abs_dirs = []
     file_paths = []
@@ -261,26 +262,19 @@ def get_files():
 
         # Gets the job_info files from .tgz files
     for i in range(0, len(abs_dirs)):
-        if abs_dirs[i].endswith(".out"):
-            continue
-        elif abs_dirs[i].endswith(".py"):
-            continue
-        elif abs_dirs[i].endswith(".py~"):
-            continue
-        else:
-            for file in os.listdir(abs_dirs[i]):
-                # Finds the tar files and extracts only job_info file
-                if file.endswith(".tgz"):
-                    tmp = os.path.join(abs_dirs[i], file)
-                    file_name = os.path.join(data,
-                                             os.path.splitext(file)[0])
-                    # Extracts the job_info file
-                    tarfile.open(tmp).extract(os.path.splitext(file)[0]
-                                              +"/job_info")
-                    file_name = file_name+"/job_info"
-                            
-                    file_here = os.path.join(abs_dirs[i], file_name)
-                    file_paths.append(file_here)
+        for file in os.listdir(abs_dirs[i]):
+            # Finds the tar files and extracts only job_info file
+            if file.endswith(".tgz"):
+                tmp = os.path.join(abs_dirs[i], file)
+                file_name = os.path.join(data,
+                                         os.path.splitext(file)[0])
+                # Extracts the job_info file
+                tarfile.open(tmp).extract(os.path.splitext(file)[0]
+                                          +"/job_info")
+                file_name = file_name+"/job_info"
+                
+                file_here = os.path.join(abs_dirs[i], file_name)
+                file_paths.append(file_here)
 
     # List of directories with file_name (e.g. job_info)
     return file_paths
