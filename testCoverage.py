@@ -28,12 +28,12 @@ Placement: Place the script in the directory where the tests are and execute
 import os
 import re as re
 import sys
-
+import tarfile
 
 def main(file_name = 'maestro-overview.out'):
 
     # Gets the paths of the files of interest
-    file_paths = get_files(file_name)  
+    file_paths = get_files()  
 
     # Initialize lists
     covered = []           
@@ -90,6 +90,7 @@ def get_start_line(data_file):
     counter = 0
     
     # Finds the Runtime Section and claculates the start_line
+    print(data_file)
     with open(data_file, mode='r') as data_file:
         for line in data_file:
             if "Runtime Parameter Information" in line:
@@ -236,7 +237,7 @@ def remove_specific_params(covered, no_cover, ignore):
     return covered_temp, no_cover_temp
 
 
-def get_files(file_name):
+def get_files():
     # Returns the absolute paths of all maestro-overview.out files.
     # The argunemnt is the name of the file that we are interested
     # in reading.
@@ -252,13 +253,41 @@ def get_files(file_name):
     abs_dirs = []
     file_paths = []
 
-    file_name = 'maestro-overview.out'   
+#    file_name = 'maestro-overview.out'   
     
     for i in range(0, len(dirs)):
         # Gets absolute path to the directories
         abs_dirs.append(os.path.join(data, dirs[i]))
         
     for i in range(0, len(abs_dirs)):
+        if abs_dirs[i].endswith(".out"):
+            continue
+        elif abs_dirs[i].endswith(".py"):
+            continue
+        else:
+            for file in os.listdir(abs_dirs[i]):
+                if file.endswith(".tgz"):
+                    tmp = os.path.join(abs_dirs[i], file)
+                    file_name = os.path.join(data,
+                                             os.path.splitext(file)[0])
+                    tarfile.open(tmp).extract(os.path.splitext(file)[0]
+                                              +"/job_info")
+
+                    file_name = file_name+"/job_info"
+                    print(file_name)
+                            
+                    # Checks if file of interest is in a directory
+                    file_here = os.path.join(abs_dirs[i], file_name)
+                    file_paths.append(file_here)
+                    if os.path.isfile(file_here):
+                        # If it is in the directory then that path is added
+                        # to the list of files
+                        file_paths.append(os.path.join(abs_dirs[i], file_name))
+                    else:
+                        continue
+    print(file_paths)
+
+    '''for i in range(0, len(abs_dirs)):
         # Checks if file of interest is in a directory
         file_here = os.path.join(abs_dirs[i], file_name)
         
@@ -267,7 +296,7 @@ def get_files(file_name):
             # to the list of files
             file_paths.append(os.path.join(abs_dirs[i], file_name))
         else:
-            pass
+            continue'''
 
     # List of directories with file_name (e.g. maestro-overview.out)
     return file_paths
