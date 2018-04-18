@@ -30,7 +30,7 @@ import re as re
 import sys
 import tarfile
 
-def main(file_name = 'maestro-overview.out'):
+def main():
 
     # Gets the paths of the files of interest
     file_paths = get_files()  
@@ -58,13 +58,14 @@ def main(file_name = 'maestro-overview.out'):
         covered, no_cover, ignore, ignore_master, all_params = build_master(
             covered_temp, no_cover_temp, covered,
             no_cover, ignore, ignore_master, all_params)
-        
+
+    All = remove_duplicates(All)
     # build_master needs to be executed one more time than the number of cycles
     # in the loop to complete the ignore list
     covered, no_cover, ignore, ignore_master, all_params = build_master(
         covered_temp, no_cover_temp, covered, no_cover,
         ignore, ignore_master, all_params)
-
+    
     covered_Frac, no_cover_Frac = get_frac(covered,no_cover)
     output_coverage("Coverage.out", covered, no_cover, covered_Frac,
                     no_cover_Frac)
@@ -78,6 +79,7 @@ def main(file_name = 'maestro-overview.out'):
                     no_cover_no_specific, covered_no_specificFrac,
                     no_cover_no_specificFrac, specific = ignore)
 
+    clean(file_paths)
     
 def get_start_line(data_file):
     # This routine finds the line number where the list of runtime
@@ -253,52 +255,34 @@ def get_files():
     abs_dirs = []
     file_paths = []
 
-#    file_name = 'maestro-overview.out'   
-    
     for i in range(0, len(dirs)):
         # Gets absolute path to the directories
         abs_dirs.append(os.path.join(data, dirs[i]))
-        
+
+        # Gets the job_info files from .tgz files
     for i in range(0, len(abs_dirs)):
         if abs_dirs[i].endswith(".out"):
             continue
         elif abs_dirs[i].endswith(".py"):
             continue
+        elif abs_dirs[i].endswith(".py~"):
+            continue
         else:
             for file in os.listdir(abs_dirs[i]):
+                # Finds the tar files and extracts only job_info file
                 if file.endswith(".tgz"):
                     tmp = os.path.join(abs_dirs[i], file)
                     file_name = os.path.join(data,
                                              os.path.splitext(file)[0])
+                    # Extracts the job_info file
                     tarfile.open(tmp).extract(os.path.splitext(file)[0]
                                               +"/job_info")
-
                     file_name = file_name+"/job_info"
-                    print(file_name)
                             
-                    # Checks if file of interest is in a directory
                     file_here = os.path.join(abs_dirs[i], file_name)
                     file_paths.append(file_here)
-                    if os.path.isfile(file_here):
-                        # If it is in the directory then that path is added
-                        # to the list of files
-                        file_paths.append(os.path.join(abs_dirs[i], file_name))
-                    else:
-                        continue
-    print(file_paths)
 
-    '''for i in range(0, len(abs_dirs)):
-        # Checks if file of interest is in a directory
-        file_here = os.path.join(abs_dirs[i], file_name)
-        
-        if os.path.isfile(file_here):
-            # If it is in the directory then that path is added
-            # to the list of files
-            file_paths.append(os.path.join(abs_dirs[i], file_name))
-        else:
-            continue'''
-
-    # List of directories with file_name (e.g. maestro-overview.out)
+    # List of directories with file_name (e.g. job_info)
     return file_paths
 
 
@@ -322,7 +306,7 @@ def get_frac(covered, no_cover):
 def output_coverage(output_name, covered, no_cover, covered_frac,
                     no_cover_frac, specific = []):
     # Prints the results of the coverage tests to coverage files
-    
+
     
     with open(output_name, mode='w') as coverage:
         # Makes a file and to list the parameters that were not covered
@@ -357,6 +341,17 @@ def remove_duplicates(all_params):
 
     return list(set(all_params)), len(list(set(all_params)))
 
+def clean(file_paths):
+    # Removes all of the files and directories created to produce the
+    # coverage reports, but it will not delete the coverage reports
+
+
+    for i in range(0,len(file_paths)):
+        
+        os.remove(file_paths[i])
+        directory = file_paths[i].replace("/job_info","")
+        os.rmdir(directory)
+
 
 if __name__ == '__main__':
-    main('maestro-overview.out')
+    main()
