@@ -92,10 +92,9 @@ def get_start_line(data_file):
     counter = 0
     
     # Finds the Runtime Section and claculates the start_line
-    print(data_file)
     with open(data_file, mode='r') as data_file:
         for line in data_file:
-            if "Runtime Parameter Information" in line:
+            if "Parameter" in line:
                 # Start line of parameter lists when the first line of
                 # the file is line 1
                 start_line = counter + 3
@@ -105,6 +104,7 @@ def get_start_line(data_file):
 
          # Checks to see if the start_line has been found, else it will stop
         if start_line <= 0:
+            print(data_file)
             sys.exit("Start_Line was not identified")
         else:
             data_file.close()
