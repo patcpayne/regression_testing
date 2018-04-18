@@ -3,22 +3,40 @@ Start Date: 02/21/18
 
 Author: Patrick Payne
 
-Purpose: Check all of the tests for MAESTRO to see if every parameter
-         has been tested at a value different from the default value
+Purpose: Check all of the tests for MAESTRO or CASTRO to see if every
+         parameter has been tested at a value different from the 
+         default value
 
-MAESTRO returns a maestro-overview.out file that lists all of the runtime 
- parameters that were used in the simulation. The values that were set 
- different from the default values are marked with a [*]. This is the
- feature that we are looking for to determine if the quantity is covered. 
+The tests of these codes produce plot files that are compressed in a 
+ tarfile (".tgz"). This tarfile contains a job_info file where all of the
+ runtime parameters that were used in the simulation are listed. The 
+ values that were set different from the default values are marked with
+ a [*]. This is the feature that we are looking for to determine if the 
+ quantity is covered. 
 
-First read the list of all of the possible parameters and then compare and
- strike the list items as we progress through the parameters that were tested.
- Finally, output a coverage file that lists the parameters that were covered
- and the parameters that were not covered in the test suite.
+The basic function of the script is as follows:
+ 1) All of the test directories are recorded
+ 2) These directories are checked for a file with the extension ".tgz"
+ 3) If the file is present, the job_info file is extracted
+ 4) The parameters are then read from each job_info file
+ 5) The parameters that occured with a [*] are recorded as covered and the
+    others are recorded as not_covered. All duplicates are removed
+ 6) The problem specific parameters (only used in one simulation) are recorded
+ 7) The coverage fractions are calculated
+ 8) The coverage reports are constructed with the list of parameters that were
+    not covered, the fraction of total parameters that were covered, and the
+    total number of parameters recorded.
 
+Output: Two ".out" files, one that includes any problem specific parameters
+ (parameters that are only appear in one test) and one that excludes these
+ parameters. The are titled "Coverage.out" and "Coverage-NoSpecific.out",
+ respectively.
  
-MAESTRO: There should be a 275 total parameters, this include the problem 
+MAESTRO: There should be ~260 total parameters, this includes the problem 
          specific parameters.
+
+CASTRO: There should be ~140 total parameters, this includes the problem
+        specific parameters.
 
 Placement: Place the script in the directory where the tests are and execute
            it in there as your CWD
