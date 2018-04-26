@@ -7,12 +7,31 @@ Purpose: Check all of the tests for MAESTRO or CASTRO to see if every
          parameter has been tested at a value different from the 
          default value
 
-The tests of these codes produce plot files that are compressed in a 
+In order for this script to function: the output of the tests that it is 
+ looking at should be in a form similar to what is shown below:
+
+[START EXAMPLE]
+
+===============================================================================
+ Runtime Parameter Information
+===============================================================================
+[*] indicates overridden default
+[*]             parameter_alpha = 1.000
+                  parameter_one = F
+
+[END EXAMPLE]
+
+The '[*]' can be preceeded by a space, as is done in MAESTRO (04/24/18), but
+ this is not necessary. The script searches for the keyword "Parameter" in
+ to begin reading the parameters immediately following the line "[*] indicates
+ overridden default" and so will expect the barrier line and that line as well.
+
+As for the form of the tests, the produce plot files should be compressed in a 
  tarfile (".tgz"). This tarfile contains a job_info file where all of the
- runtime parameters that were used in the simulation are listed. The 
- values that were set different from the default values are marked with
- a [*]. This is the feature that we are looking for to determine if the 
- quantity is covered. 
+ runtime parameters that were used in the simulation are listed, in the form 
+ that was expressed above. The values that were set different from the default
+ values are marked with a [*]. This is the feature that we are looking for to 
+ determine if the quantity is covered. 
 
 The basic function of the script is as follows:
  1) All of the test directories are recorded
@@ -40,6 +59,9 @@ CASTRO: There should be ~140 total parameters, this includes the problem
 
 Placement: Place the script in the directory where the tests are and execute
            it in there as your CWD
+
+DEVELOPMENT: Add feature for user to specify the test directory on command line
+
 '''
 
 
